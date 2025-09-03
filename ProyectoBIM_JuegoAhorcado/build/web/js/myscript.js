@@ -25,7 +25,7 @@ const palabras = [
             "Implica escribir código en un lenguaje específico",
             "Se usa para resolver problemas o automatizar tareas"
         ],
-        imagen: "https://cdn-icons-png.flaticon.com/512/1006/1006363.png"
+        imagen: "Image/imagen_progra.png"
     },
     {
         palabra: "teclado",
@@ -34,7 +34,7 @@ const palabras = [
             "Tiene teclas alfabéticas, numéricas y de función",
             "Puede ser mecánico o de membrana"
         ],
-        imagen: "https://cdn-icons-png.flaticon.com/512/2942/2942946.png"
+        imagen: "Image/imagen_teclado.png"
     },
     {
         palabra: "internet",
@@ -43,8 +43,20 @@ const palabras = [
             "Permite acceso to the World Wide Web",
             "Se originó como ARPANET en los años 60"
         ],
-        imagen: "https://cdn-icons-png.flaticon.com/512/841/841364.png"
+        imagen: "Image/imagen_internet.png"
     }
+];
+
+
+const imagenesAhorcado = [
+    "Image/ImagenFondo_Ahorcado.png",  
+    "Image/Imagen_cabeza.png", 
+    "Image/imagen_cuerpo.png",  
+    "Image/imagen_brazoderecho.png", 
+    "Image/imagen-brazoizq.png",  
+    "Image/imagen_piernader.png", 
+    "Image/imagen_piernaizq.png"  
+
 ];
 
 // Variables globales
@@ -62,7 +74,6 @@ let cronometroInterval = null;
 let juegoEnPausa = false;
 let juegoActivo = false;
 
-// Elementos del DOM
 const menuInicio = document.getElementById('menu-inicio');
 const selectorDificultad = document.getElementById('selector-dificultad');
 const tablaPuntajes = document.getElementById('tabla-puntajes');
@@ -74,8 +85,7 @@ const intentosElement = document.getElementById('intentos-restantes');
 const tiempoElement = document.getElementById('tiempo');
 const tecladoVirtual = document.getElementById('teclado-virtual');
 const contadorPistas = document.getElementById('contador-pistas');
-const canvas = document.getElementById('ahorcado-canvas');
-const ctx = canvas.getContext('2d');
+const imagenAhorcado = document.getElementById('imagen-ahorcado');
 
 // Sonidos
 const clickSound = document.getElementById('click-sound');
@@ -234,6 +244,13 @@ function mostrarPistas() {
     contadorPistas.textContent = `(${3 - pistasUsadas} restantes)`;
 }
 
+// Mostrar la imagen del ahorcado según los errores
+function mostrarImagenAhorcado() {
+    const errores = 6 - intentosRestantes;
+    const indiceImagen = Math.min(errores, imagenesAhorcado.length - 1);
+    imagenAhorcado.src = imagenesAhorcado[indiceImagen];
+}
+
 // Usar una pista
 function usarPista() {
     if (pistasUsadas < 3 && juegoActivo && !juegoEnPausa) {
@@ -311,104 +328,12 @@ function adivinarLetra(letra) {
         letrasIncorrectas.add(letra);
         intentosRestantes--;
         intentosElement.textContent = intentosRestantes;
-        dibujarAhorcado();
+        mostrarImagenAhorcado();
         
         // Verificar si se perdió el juego
         if (intentosRestantes === 0) {
             perderJuego();
         }
-    }
-}
-
-// Dibujar el ahorcado (diseño mejorado)
-function dibujarAhorcado() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#3a528b';
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    
-    // Base
-    ctx.beginPath();
-    ctx.moveTo(50, 280);
-    ctx.lineTo(250, 280);
-    ctx.stroke();
-    
-    // Poste vertical
-    ctx.beginPath();
-    ctx.moveTo(100, 280);
-    ctx.lineTo(100, 30);
-    ctx.stroke();
-    
-    // Travesaño superior
-    ctx.beginPath();
-    ctx.moveTo(100, 30);
-    ctx.lineTo(200, 30);
-    ctx.stroke();
-    
-    // Cuerda
-    ctx.beginPath();
-    ctx.moveTo(200, 30);
-    ctx.lineTo(200, 60);
-    ctx.stroke();
-    
-    const errores = 6 - intentosRestantes;
-    
-    if (errores >= 1) {
-        // Cabeza
-        ctx.beginPath();
-        ctx.arc(200, 80, 20, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-    
-    if (errores >= 2) {
-        // Cuerpo
-        ctx.beginPath();
-        ctx.moveTo(200, 100);
-        ctx.lineTo(200, 180);
-        ctx.stroke();
-    }
-    
-    if (errores >= 3) {
-        // Brazo izquierdo
-        ctx.beginPath();
-        ctx.moveTo(200, 120);
-        ctx.lineTo(170, 140);
-        ctx.stroke();
-    }
-    
-    if (errores >= 4) {
-        // Brazo derecho
-        ctx.beginPath();
-        ctx.moveTo(200, 120);
-        ctx.lineTo(230, 140);
-        ctx.stroke();
-    }
-    
-    if (errores >= 5) {
-        // Pierna izquierda
-        ctx.beginPath();
-        ctx.moveTo(200, 180);
-        ctx.lineTo(170, 220);
-        ctx.stroke();
-    }
-    
-    if (errores >= 6) {
-        // Pierna derecha
-        ctx.beginPath();
-        ctx.moveTo(200, 180);
-        ctx.lineTo(230, 220);
-        ctx.stroke();
-        
-        // Cara triste
-        ctx.beginPath();
-        ctx.arc(195, 75, 3, 0, Math.PI * 2); // Ojo izquierdo
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(205, 75, 3, 0, Math.PI * 2); // Ojo derecho
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(200, 85, 5, 0, Math.PI); // Boca triste
-        ctx.stroke();
     }
 }
 
@@ -455,8 +380,9 @@ function comenzarJuego() {
     intentosElement.textContent = intentosRestantes;
     tiempoElement.textContent = '00:00';
     
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dibujarAhorcado();
+    // Mostrar imagen inicial del ahorcado
+    imagenAhorcado.src = imagenesAhorcado[0];
+    
     iniciarCronometro();
 }
 
@@ -577,6 +503,5 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Inicializar canvas
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-dibujarAhorcado();
+// Inicializar imagen del ahorcado
+imagenAhorcado.src = imagenesAhorcado[0];

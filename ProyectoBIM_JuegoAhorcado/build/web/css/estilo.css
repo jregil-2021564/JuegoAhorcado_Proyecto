@@ -425,11 +425,14 @@ body {
     max-width: 350px;
 }
 
-#ahorcado-canvas {
-    background: white;
+/* Estilos para la imagen del ahorcado */
+#imagen-ahorcado {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
     border-radius: 10px;
-    margin-bottom: 15px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
 }
 
 .intentos {
@@ -637,7 +640,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* Contenedor de imagen de la palabra */
+/* Contenedor de imagen de la palabra adivinada */
 .imagen-palabra-container {
     margin: 20px 0;
     padding: 15px;
