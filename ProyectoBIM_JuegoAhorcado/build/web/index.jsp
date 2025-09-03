@@ -316,6 +316,6 @@
     <audio id="win-sound" src="" preload="auto"></audio>
     <audio id="lose-sound" src="" preload="auto"></audio>
 
-    <script src="js/myscripts.js"></script>
+    <script src="js/myscript.js"></script>
 </body>
 </html>
