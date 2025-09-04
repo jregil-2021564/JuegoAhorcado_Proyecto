@@ -28,9 +28,9 @@
             <div class="login-header">
                 <div class="logo">
                     <i class="fas fa-puzzle-piece"></i>
-                    <h1>AHORCADO</h1>
+                    <h1>JUEGO AHORCADO</h1>
                 </div>
-                <p>Inicia sesión para comenzar a jugar</p>
+                <p>Inicia sesión para comenzar esta aventura</p>
             </div>
 
             <form id="login-form" class="login-form">
