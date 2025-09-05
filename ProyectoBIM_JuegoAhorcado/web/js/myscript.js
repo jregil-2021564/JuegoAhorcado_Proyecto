@@ -47,7 +47,6 @@ const palabras = [
     }
 ];
 
-
 const imagenesAhorcado = [
     "Image/ImagenFondo_Ahorcado.png",  
     "Image/Imagen_cabeza.png", 
@@ -56,7 +55,6 @@ const imagenesAhorcado = [
     "Image/imagen-brazoizq.png",  
     "Image/imagen_piernader.png", 
     "Image/imagen_piernaizq.png"  
-
 ];
 
 // Variables globales
@@ -73,6 +71,7 @@ let tiempoTranscurrido = 0;
 let cronometroInterval = null;
 let juegoEnPausa = false;
 let juegoActivo = false;
+let dificultadActual = "normal"; // Valor por defecto
 
 const menuInicio = document.getElementById('menu-inicio');
 const selectorDificultad = document.getElementById('selector-dificultad');
@@ -142,6 +141,7 @@ function ocultarDificultad() {
 function aplicarDificultad() {
     playSound(clickSound);
     const dificultad = document.querySelector('input[name="dificultad"]:checked').value;
+    dificultadActual = dificultad;
     
     switch(dificultad) {
         case 'facil':
@@ -203,14 +203,45 @@ function inicializarTeclado() {
     });
 }
 
+// Reiniciar el estado del juego
+function reiniciarEstadoJuego() {
+    // Restablecer todas las variables de estado del juego
+    letrasAdivinadas.clear();
+    letrasIncorrectas.clear();
+    pistasUsadas = 0;
+    tiempoTranscurrido = 0;
+    
+    // Restablecer intentos según la dificultad actual
+    switch(dificultadActual) {
+        case 'facil':
+            intentosRestantes = 8;
+            break;
+        case 'normal':
+            intentosRestantes = 6;
+            break;
+        case 'dificil':
+            intentosRestantes = 4;
+            break;
+    }
+
+    intentosElement.textContent = intentosRestantes;
+
+    imagenAhorcado.src = imagenesAhorcado[0];
+    
+    // Limpiar y restablecer el teclado
+    const teclas = document.querySelectorAll('.tecla');
+    teclas.forEach(tecla => {
+        tecla.classList.remove('acertada', 'fallada', 'deshabilitada');
+    });
+}
+
 // Seleccionar una palabra aleatoria
 function seleccionarPalabra() {
     const indice = Math.floor(Math.random() * palabras.length);
     palabraSecreta = palabras[indice].palabra.toUpperCase();
     pistas = palabras[indice].pistas;
     imagenPalabra = palabras[indice].imagen;
-    
-    // Inicializar array de palabra adivinada con guiones bajos
+
     palabraAdivinada = Array(palabraSecreta.length).fill('_');
 }
 
@@ -221,8 +252,7 @@ function actualizarPalabra() {
         const letraElement = document.createElement('span');
         letraElement.className = 'letra';
         letraElement.textContent = letra;
-        
-        // Añadir animación si la letra fue recién revelada
+
         if (letra !== '_') {
             letraElement.classList.add('revelada');
         }
@@ -246,7 +276,7 @@ function mostrarPistas() {
 
 // Mostrar la imagen del ahorcado según los errores
 function mostrarImagenAhorcado() {
-    const errores = 6 - intentosRestantes;
+    const errores = (dificultadActual === 'facil' ? 8 : dificultadActual === 'normal' ? 6 : 4) - intentosRestantes;
     const indiceImagen = Math.min(errores, imagenesAhorcado.length - 1);
     imagenAhorcado.src = imagenesAhorcado[indiceImagen];
 }
@@ -306,7 +336,7 @@ function adivinarLetra(letra) {
     const tecla = document.querySelector(`.tecla[data-letra="${letra}"]`);
     
     if (palabraSecreta.includes(letra)) {
-        // Letra correcta
+        // Letra que fue correcta
         tecla.classList.add('acertada');
         
         // Actualizar palabra adivinada
@@ -367,21 +397,15 @@ function comenzarJuego() {
     // Inicializar juego
     seleccionarPalabra();
     inicializarTeclado();
+    reiniciarEstadoJuego();
     actualizarPalabra();
     mostrarPistas();
     
-    pistasUsadas = 0;
-    letrasAdivinadas.clear();
-    letrasIncorrectas.clear();
     tiempoTranscurrido = 0;
     juegoActivo = true;
     juegoEnPausa = false;
     
-    intentosElement.textContent = intentosRestantes;
     tiempoElement.textContent = '00:00';
-    
-    // Mostrar imagen inicial del ahorcado
-    imagenAhorcado.src = imagenesAhorcado[0];
     
     iniciarCronometro();
 }
@@ -415,7 +439,7 @@ function reanudarJuego() {
     }
 }
 
-// Volver al menú desde pausa
+// Volver al menú desde modo de pausa
 function volverAlMenuDesdePausa() {
     playSound(clickSound);
     juegoEnPausa = false;
@@ -460,12 +484,10 @@ function ganarJuego() {
     document.getElementById('mensaje-fin').textContent = 'Has adivinado la palabra correctamente.';
     document.getElementById('palabra-correcta').textContent = palabraSecreta;
     document.getElementById('tiempo-fin').textContent = tiempoElement.textContent;
-    
-    // Mostrar imagen de la palabra
+
     imagenPalabraElement.src = imagenPalabra;
     imagenPalabraElement.alt = `Imagen de ${palabraSecreta}`;
-    
-    // Añadir clase de celebración
+
     document.getElementById('imagen-palabra-container').classList.add('celebrate');
 }
 
@@ -486,16 +508,15 @@ function perderJuego() {
     document.getElementById('palabra-correcta').textContent = palabraSecreta;
     document.getElementById('tiempo-fin').textContent = tiempoElement.textContent;
     
-    // Mostrar imagen de la palabra
+    // Mostrar la imagen de la palabra
     imagenPalabraElement.src = imagenPalabra;
     imagenPalabraElement.alt = `Imagen de ${palabraSecreta}`;
 }
 
-// Event listener para teclado físico
+// Codigo para que sirva el teclado físico
 document.addEventListener('keydown', (e) => {
     if (juegoActivo && !juegoEnPausa) {
         const letra = e.key.toUpperCase();
-        // Permitir la Ñ
         if ((/^[A-Z]$/.test(letra) || letra === 'Ñ') && !letrasAdivinadas.has(letra) && !letrasIncorrectas.has(letra)) {
             playSound(clickSound);
             adivinarLetra(letra);
