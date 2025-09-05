@@ -1,165 +1,170 @@
--- drop database if exists DB_Ahorcado;
-create database DB_Ahorcado;
-use DB_Ahorcado;
+-- Creación de la base de datos
+DROP DATABASE IF EXISTS DB_ahorcado; 
+CREATE DATABASE DB_ahorcado;
+USE DB_ahorcado;
 
--- Tabla de usuarios
-Create table Usuarios (
-    codigoUsuario int auto_increment,
-    nombreUsuario varchar(100) unique,
-    contraseñaUsuario varchar(100),
-    fechaRegistro datetime default current_timestamp,
-    constraint pk_codigoUsuario primary key (codigoUsuario)
+-- Tabla de Usuarios (simplificada para coincidir con tu HTML)
+CREATE TABLE Usuarios(
+    codigoUsuario INT AUTO_INCREMENT,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    fechaRegistro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY PK_codigoUsuario (codigoUsuario)
 );
 
--- Tabla de palabras con pistas
-Create table Palabras (
-    codigoPalabra int auto_increment,
-    textoPalabra varchar(100) unique,
-    pistaUno varchar(250),
-    pistaDos varchar(250),
-    pistaTres varchar(250),
-    imagenPalabra varchar(255),
-    fechaCreacion datetime default current_timestamp,
-    constraint pk_codigoPalabra primary key (codigoPalabra)
+-- Tabla de Palabras
+CREATE TABLE Palabras(
+    codigoPalabra INT AUTO_INCREMENT,
+    palabra VARCHAR(100),
+    pista VARCHAR(200),     
+    PRIMARY KEY PK_codigoPalabra (codigoPalabra)
 );
 
--- PROCEDIMIENTOS ALMACENADOS --
+-- --------------------------- PROCEDIMIENTOS ALMACENADOS PARA USUARIOS ---------------------------
 
--- Usuarios --
-Delimiter $$
-Create procedure sp_AgregarUsuario (
-    in nomUsu varchar(100), 
-    in contUsu varchar(100))
-begin 
-    -- Verificar si el usuario ya existe
-    if not exists (select 1 from Usuarios where nombreUsuario = nomUsu) then
-        insert into Usuarios (nombreUsuario, contraseñaUsuario)
-        values (nomUsu, contUsu);
-        select 1 as resultado; -- Éxito
-    else
-        select 0 as resultado; -- Usuario ya existe
-    end if;
-end$$
-Delimiter ;
+-- Agregar Usuario (Registro)
+DELIMITER //
+CREATE PROCEDURE sp_AgregarUsuario(
+    IN _username VARCHAR(100),
+    IN _password VARCHAR(100))
+BEGIN
+    INSERT INTO Usuarios(username, password)
+    VALUES (_username, _password);
+    SELECT LAST_INSERT_ID() as codigoUsuario;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_MostrarUsuarios()
-begin
-    select codigoUsuario, nombreUsuario, fechaRegistro
-    from Usuarios;
-end$$
-Delimiter ;
+-- Verificar Login (Inicio de sesión)
+DELIMITER //
+CREATE PROCEDURE sp_VerificarLogin(
+    IN _username VARCHAR(100), 
+    IN _password VARCHAR(100))
+BEGIN
+    SELECT codigoUsuario, username 
+    FROM Usuarios
+    WHERE username = _username AND password = _password;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_BuscarUsuarioPorId(in idUsu int)
-begin
-    select * from Usuarios where codigoUsuario = idUsu;
-end$$
-Delimiter ;
+-- Verificar si usuario existe
+DELIMITER //
+CREATE PROCEDURE sp_VerificarUsuarioExistente(IN _username VARCHAR(100))
+BEGIN
+    SELECT COUNT(*) as existe FROM Usuarios WHERE username = _username;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_BuscarUsuarioPorNombre(in nomUsu varchar(100))
-begin
-    select * from Usuarios where nombreUsuario = nomUsu;
-end$$
-Delimiter ;
+-- Listar Usuarios
+DELIMITER //
+CREATE PROCEDURE sp_ListarUsuarios()
+BEGIN
+    SELECT codigoUsuario, username, fechaRegistro 
+    FROM Usuarios;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_VerificarUsuario(in nomUsu varchar(100), in contUsu varchar(100))
-begin
-    select codigoUsuario, nombreUsuario
-    from Usuarios 
-    where nombreUsuario = nomUsu and contraseñaUsuario = contUsu;
-end$$
-Delimiter ;
+-- Buscar Usuario por ID
+DELIMITER //
+CREATE PROCEDURE sp_BuscarUsuarioPorId(IN _codigoUsuario INT)
+BEGIN
+    SELECT codigoUsuario, username, fechaRegistro 
+    FROM Usuarios
+    WHERE codigoUsuario = _codigoUsuario;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_ActualizarUsuario(in idUsu int, in nomUsu varchar(100), in contUsu varchar(100))
-begin
-    update Usuarios 
-    set nombreUsuario = nomUsu, contraseñaUsuario = contUsu
-    where codigoUsuario = idUsu;
-end$$
-Delimiter ;
+-- Eliminar Usuario
+DELIMITER //
+CREATE PROCEDURE sp_EliminarUsuario(IN _codigoUsuario INT)
+BEGIN
+    DELETE FROM Usuarios WHERE codigoUsuario = _codigoUsuario;
+    SELECT ROW_COUNT() AS filasEliminadas;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_EliminarUsuario(in idUsu int)
-begin
-    delete from Usuarios where codigoUsuario = idUsu;
-end$$
-Delimiter ;
+-- --------------------------- PROCEDIMIENTOS ALMACENADOS PARA PALABRAS ---------------------------
 
--- Palabras --
-Delimiter $$
-Create procedure sp_AgregarPalabra (
-    in texto varchar(100),
-    in pista1 varchar(250),
-    in pista2 varchar(250),
-    in pista3 varchar(250),
-    in imagen varchar(255))
-begin 
-    insert into Palabras (textoPalabra, pistaUno, pistaDos, pistaTres, imagenPalabra)
-    values (texto, pista1, pista2, pista3, imagen);
-end$$
-Delimiter ;
+-- Agregar Palabra
+DELIMITER //
+CREATE PROCEDURE sp_AgregarPalabra(
+    IN _palabra VARCHAR(100),
+    IN _pista VARCHAR(200))
+BEGIN
+    INSERT INTO Palabras(palabra, pista)
+    VALUES (_palabra, _pista);
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_MostrarPalabras()
-begin
-    select * from Palabras;
-end$$
-Delimiter ;
+-- Listar Palabras
+DELIMITER //
+CREATE PROCEDURE sp_ListarPalabras()
+BEGIN
+    SELECT codigoPalabra, palabra, pista FROM Palabras;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_BuscarPalabraPorId(in idPal int)
-begin
-    select * from Palabras where codigoPalabra = idPal;
-end$$
-Delimiter ;
+-- Buscar Palabra por ID
+DELIMITER //
+CREATE PROCEDURE sp_BuscarPalabra(
+    IN _codigoPalabra INT)
+BEGIN
+    SELECT codigoPalabra, palabra, pista FROM Palabras
+    WHERE codigoPalabra = _codigoPalabra;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_ObtenerPalabraAleatoria()
-begin
-    select * from Palabras order by rand() limit 1;
-end$$
-Delimiter ;
+-- Obtener Palabra Aleatoria
+DELIMITER //
+CREATE PROCEDURE sp_ObtenerPalabraAleatoria()
+BEGIN
+    SELECT codigoPalabra, palabra, pista FROM Palabras
+    ORDER BY RAND()
+    LIMIT 1;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_ActualizarPalabra(in idPal int, in texto varchar(100), in pista1 varchar(250), 
-                                     in pista2 varchar(250), in pista3 varchar(250), in imagen varchar(255))
-begin
-    update Palabras 
-    set textoPalabra = texto, pistaUno = pista1, pistaDos = pista2, pistaTres = pista3, imagenPalabra = imagen
-    where codigoPalabra = idPal;
-end$$
-Delimiter ;
+-- Editar Palabra
+DELIMITER //
+CREATE PROCEDURE sp_EditarPalabra(
+    IN _codigoPalabra INT,
+    IN _palabra VARCHAR(100),
+    IN _pista VARCHAR(200)) 
+BEGIN
+    UPDATE Palabras
+    SET palabra = _palabra,
+        pista = _pista
+    WHERE codigoPalabra = _codigoPalabra;
+END //
+DELIMITER ;
 
-Delimiter $$
-Create procedure sp_EliminarPalabra(in idPal int)
-begin
-    delete from Palabras where codigoPalabra = idPal;
-end$$
-Delimiter ;
+-- Eliminar Palabra
+DELIMITER //
+CREATE PROCEDURE sp_EliminarPalabra(
+    IN _codigoPalabra INT)
+BEGIN
+    DELETE FROM Palabras WHERE codigoPalabra = _codigoPalabra;
+    SELECT ROW_COUNT() AS filasEliminadas;
+END //
+DELIMITER ;
 
--- INSERTAR DATOS DE EJEMPLO --
+-- --------------------------- INSERCIÓN DE DATOS DE EJEMPLO ---------------------------
 
--- Insertar usuarios
-call sp_AgregarUsuario('joaquin gonzales', 'jocaco7852$');
-call sp_AgregarUsuario('diego mendez', 'diegoLuhe980');
-call sp_AgregarUsuario('pablo santa cruz', 'sdjfjf4141');
-call sp_AgregarUsuario('juan', 'contraseña123');
-call sp_AgregarUsuario('mlara', 'contraseña456');
+-- Insertar usuarios de ejemplo
+CALL sp_AgregarUsuario('admin', 'admin123');
+CALL sp_AgregarUsuario('carlos', 'carlos123');
+CALL sp_AgregarUsuario('ana', 'ana456');
+CALL sp_AgregarUsuario('luis', 'luis789');
 
--- Insertar palabras con pistas e imágenes
-call sp_AgregarPalabra('JAVASCRIPT', 'Lenguaje de programación interpretado', 'Se ejecuta principalmente en navegadores web', 'Creado por Brendan Eich en 1995', 'javascript.png');
-call sp_AgregarPalabra('COMPUTADORA', 'Dispositivo electrónico que procesa datos', 'Puede ser de escritorio o portátil', 'Tiene componentes como CPU, RAM y disco duro', 'computadora.png');
-call sp_AgregarPalabra('PROGRAMACION', 'Proceso de crear software', 'Implica escribir código en un lenguaje específico', 'Se usa para resolver problemas o automatizar tareas', 'programacion.png');
-call sp_AgregarPalabra('TECLADO', 'Dispositivo de entrada de datos', 'Tiene teclas alfabéticas, numéricas y de función', 'Puede ser mecánico o de membrana', 'teclado.png');
-call sp_AgregarPalabra('INTERNET', 'Red global de computadoras interconectadas', 'Permite acceso a la World Wide Web', 'Se originó como ARPANET en los años 60', 'internet.png');
-call sp_AgregarPalabra('CENICIENTA', 'Personaje de cuento de hadas', 'Tiene una madrastra y hermanastras malvadas', 'Pierde su zapatilla de cristal', 'cenicienta.png');
-call sp_AgregarPalabra('ANIMALISTA', 'Persona que defiende los derechos de los animales', 'Se opone al maltrato animal', 'Promueve el vegetarianismo/veganismo', 'animalista.png');
-call sp_AgregarPalabra('OBSTACULO', 'Algo que impide el paso o progreso', 'Puede ser físico o abstracto', 'En deportes, prueba de velocidad con barreras', 'obstaculo.png');
-call sp_AgregarPalabra('TECNOLOGIA', 'Aplicación del conocimiento científico', 'Incluye dispositivos electrónicos y digitales', 'Avances que mejoran la vida humana', 'tecnologia.png');
-call sp_AgregarPalabra('EDUCACION', 'Proceso de enseñanza-aprendizaje', 'Se imparte en escuelas y universidades', 'Derecho fundamental de toda persona', 'educacion.png');
+-- Insertar palabras de ejemplo
+CALL sp_AgregarPalabra('TORREFACTO', 'Negro como la noche, en taza me encontrarás, si me pruebas con azúcar, ¿sabes cómo me llamarás?');
+CALL sp_AgregarPalabra('SEPTIEMBRE', 'Entre el calor que se apaga y el frío que viene ligero, traigo la patria en bandera y otoño en mi sombrero.');
+CALL sp_AgregarPalabra('MANZANILLA', 'Soy una flor sencilla y pequeña, me buscan por mi sabor, en infusiones me toman para calmar el dolor.');
+CALL sp_AgregarPalabra('PRECIDENTE', 'Soy uno de los que dio taco de banano');
+CALL sp_AgregarPalabra('ABECEDARIO', 'De la A a la Z me puedes recitar, con mis letras se construyen las palabras al hablar.');
+CALL sp_AgregarPalabra('JAVASCRIPT', 'Lenguaje de programación interpretado que se ejecuta en navegadores web');
+CALL sp_AgregarPalabra('COMPUTADORA', 'Dispositivo electrónico que procesa datos y tiene componentes como CPU y RAM');
+CALL sp_AgregarPalabra('PROGRAMACION', 'Proceso de crear software mediante la escritura de código');
+CALL sp_AgregarPalabra('TECLADO', 'Dispositivo de entrada con teclas alfabéticas, numéricas y de función');
+CALL sp_AgregarPalabra('INTERNET', 'Red global de computadoras interconectadas que permite acceso a la World Wide Web');
 
 select * from Usuarios;
