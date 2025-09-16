@@ -1,4 +1,6 @@
+<%@page import="modelo.Palabras"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -30,7 +32,7 @@
             
             <div class="menu-options">
                 <div class="menu-buttons">
-                    <button id="btn-comenzar" class="btn btn-primary">
+                    <button id="btn-comenzar" class="btn btn-primary" onclick="window.location.href='JuegoControlador'">
                         <i class="fas fa-play"></i> Comenzar Juego
                     </button>
                     <button id="btn-dificultad" class="btn btn-secondary">
@@ -72,6 +74,7 @@
                 </div>
             </div>
         </div>
+        
         <div id="selector-dificultad" class="modal" style="display: none;">
             <div class="modal-content">
                 <div class="modal-icon">
@@ -249,7 +252,7 @@
                         <div id="pistas" class="pistas"></div>
                         <button id="btn-pista" class="btn btn-pista">
                             <i class="fas fa-question-circle"></i> Usar Pista 
-                            <span id="contador-pistas">(3 restantes)</span>
+                            <span id="contador-pistas">(1 restante)</span>
                         </button>
                     </div>
                     
@@ -284,7 +287,6 @@
                 <h2 id="titulo-fin"></h2>
                 <p id="mensaje-fin"></p>
                 
-                <!-- Contenedor para la imagen de la palabra adivinada -->
                 <div id="imagen-palabra-container" class="imagen-palabra-container">
                     <img id="imagen-palabra" src="" alt="Imagen de la palabra">
                 </div>
@@ -307,22 +309,30 @@
         </div>
     </div>
 
-    <audio
-            id="click-sound"
-            src=""
-            preload="auto"
-            ></audio>
-        <audio
-            id="win-sound"
-            src=""
-            preload="auto"
-            ></audio>
-        <audio
-            id="lose-sound"
-            src=""
-            preload="auto"
-            ></audio>
+    <audio id="click-sound" src="" preload="auto"></audio>
+    <audio id="win-sound" src="" preload="auto"></audio>
+    <audio id="lose-sound" src="" preload="auto"></audio>
     
     <script src="js/myscript.js"></script>
+
+    <%
+        Palabras palabraDelJuego = (Palabras) session.getAttribute("palabraJuego");
+
+        String palabraJs = "''";
+        String pistaJs = "''";
+        
+        if (palabraDelJuego != null) {
+            palabraJs = "'" + palabraDelJuego.getPalabra() + "'";
+            pistaJs = "'" + palabraDelJuego.getPista() + "'";
+
+            session.removeAttribute("palabraJuego");
+        }
+    %>
+    
+    <script>
+        if (<%= palabraJs %> !== '') {
+            iniciarNuevoJuego(<%= palabraJs %>, <%= pistaJs %>);
+        }
+    </script>
 </body>
 </html>

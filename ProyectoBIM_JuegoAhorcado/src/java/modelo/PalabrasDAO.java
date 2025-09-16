@@ -4,98 +4,54 @@ import config.Conexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.SQLException;
 
 public class PalabrasDAO {
-    Conexion cn = new Conexion();
-    Connection con;
-    PreparedStatement ps;
-    ResultSet rs;
+    private Connection con;
+    private PreparedStatement ps;
+    private ResultSet rs;
+    private Conexion cn = new Conexion(); // Instantiate the connection class
 
+    /**
+     * Obtiene una palabra aleatoria de la base de datos.
+     * @return Objeto Palabras con la palabra, pista y categoría.
+     * Retorna null si no se encuentra ninguna palabra.
+     */
     public Palabras obtenerPalabraAleatoria() {
+        String sql = "SELECT * FROM palabras ORDER BY RAND() LIMIT 1";
         Palabras palabra = null;
-        String sql = "CALL sp_ObtenerPalabraAleatoria()";
-        
         try {
-            con = cn.Conexion();
+            con = cn.Conexion(); // This should be the correct method call
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
-            
             if (rs.next()) {
                 palabra = new Palabras();
-                palabra.setCodigoPalabra(rs.getInt("codigoPalabra"));
+                // Map the results from your database table columns
+                palabra.setCodigoPalabra(rs.getInt("codigo_palabra"));
                 palabra.setPalabra(rs.getString("palabra"));
                 palabra.setPista(rs.getString("pista"));
             }
-        } catch (Exception e) {
-            System.out.println("Error al obtener palabra aleatoria: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error al obtener palabra aleatoria: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (con != null) con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            // Close resources in a separate helper method for cleaner code
+            cerrarRecursos();
         }
         return palabra;
     }
 
-    public List<Palabras> listarPalabras() {
-        List<Palabras> lista = new ArrayList<>();
-        String sql = "CALL sp_ListarPalabras()";
-        
+    /**
+     * Método auxiliar para cerrar los recursos de la base de datos.
+     */
+    private void cerrarRecursos() {
         try {
-            con = cn.Conexion();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                Palabras palabra = new Palabras();
-                palabra.setCodigoPalabra(rs.getInt("codigoPalabra"));
-                palabra.setPalabra(rs.getString("palabra"));
-                palabra.setPista(rs.getString("pista"));
-                lista.add(palabra);
-            }
-        } catch (Exception e) {
-            System.out.println("Error al listar palabras: " + e.getMessage());
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            System.err.println("Error al cerrar recursos: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (con != null) con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
-        return lista;
-    }
-
-    public boolean agregarPalabra(String palabra, String pista) {
-        String sql = "CALL sp_AgregarPalabra(?, ?)";
-        boolean agregado = false;
-        
-        try {
-            con = cn.Conexion();
-            ps = con.prepareStatement(sql);
-            ps.setString(1, palabra);
-            ps.setString(2, pista);
-            int filas = ps.executeUpdate();
-            agregado = filas > 0;
-        } catch (Exception e) {
-            System.out.println("Error al agregar palabra: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            try {
-                if (ps != null) ps.close();
-                if (con != null) con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return agregado;
     }
 }
