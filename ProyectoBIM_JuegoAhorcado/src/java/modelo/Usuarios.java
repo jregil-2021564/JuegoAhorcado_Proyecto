@@ -49,4 +49,14 @@ public class Usuarios {
     public void setFechaRegistro(Timestamp fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
     }
+
+    @Override
+    public String toString() {
+        return "Usuarios{" +
+                "codigo_Usuario=" + codigoUsuario +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", fecha_Registro=" + fechaRegistro +
+                '}';
+    }
 }

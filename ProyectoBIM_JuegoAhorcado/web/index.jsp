@@ -33,16 +33,17 @@
                 <p>Inicia sesión para comenzar esta aventura</p>
             </div>
 
-            <form id="login-form" class="login-form">
+            <!-- Formulario de inicio de sesión -->
+            <form id="login-form" class="login-form" method="POST" action="Validar">
                 <div class="form-group">
                     <label for="username"><i class="fas fa-user"></i> Usuario</label>
-                    <input type="text" id="username" name="username" placeholder="Ingresa tu usuario">
+                    <input type="text" id="username" name="username" placeholder="Ingresa tu usuario" required>
                     <div class="error-message" id="username-error"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
-                    <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña">
+                    <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
                     <div class="error-message" id="password-error"></div>
                 </div>
 
@@ -55,16 +56,19 @@
                     <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
                 </div>
 
-                <button type="submit" class="btn-login">
+                <!-- Botón para enviar el formulario de login -->
+                <button type="submit" class="btn-login" name="accion" value="Ingresar">
                     <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                 </button>
 
+                <!-- Enlace para cambiar a la página de registro -->
                 <div class="register-link">
                     ¿No tienes una cuenta? <a href="#" id="register-btn">Regístrate aquí</a>
                 </div>
             </form>
 
-            <form id="register-form" class="login-form" style="display: none;">
+
+            <form id="register-form" class="login-form" method="POST" action="Validar" style="display: none;">
                 <div class="form-group">
                     <label for="new-username"><i class="fas fa-user"></i> Nuevo Usuario</label>
                     <input type="text" id="new-username" name="new-username" placeholder="Crea tu usuario">
@@ -98,6 +102,5 @@
         </div>
     </div>
 
-    <script src="js/login.js"></script>
 </body>
 </html>
