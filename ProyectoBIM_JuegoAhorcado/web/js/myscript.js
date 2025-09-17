@@ -1,6 +1,26 @@
 // myscript.js
 const palabras_local = [
     {
+        palabra: "torrefacto",
+        imagen: "Image/imagen_torrefacto.png"
+    },
+    {
+        palabra: "septiembre",
+        imagen: "Image/imagen_septiembre.png"
+    },
+    {
+        palabra: "manzanilla",
+        imagen: "Image/imagen_manzanilla.png"
+    },
+    {
+        palabra: "precidente",
+        imagen: "Image/imagen_presidente.png"
+    },
+    {
+        palabra: "abecedario",
+        imagen: "Image/imagen_abecedario.png"
+    },
+    {
         palabra: "javascript",
         imagen: "Image/imagen_javascript.png"
     },
