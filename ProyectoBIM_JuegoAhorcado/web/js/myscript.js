@@ -223,14 +223,13 @@ function mostrarImagenAhorcado() {
     imagenAhorcado.src = imagenesAhorcado[indiceImagen];
 }
 
-// Usar la única pista
 function usarPista() {
-    if (pistasUsadas < 1 && juegoActivo && !juegoEnPausa) {
+    if (pistasUsadas < 3 && juegoActivo && !juegoEnPausa) {
         playSound(clickSound);
         
         pistasElement.textContent = "Pista: " + pista;
         pistasUsadas++;
-        contadorPistas.textContent = `(${1 - pistasUsadas} restante)`;
+        contadorPistas.textContent = `(${3 - pistasUsadas} restantes)`;
 
         let letrasNoAdivinadas = [];
         for (let i = 0; i < palabraSecreta.length; i++) {
@@ -256,9 +255,10 @@ function usarPista() {
             }
         }
     } else {
-        alert('Ya has usado la única pista disponible.');
+        alert('Ya has usado todas las pistas disponibles.');
     }
 }
+
 
 // Adivinar una letra
 function adivinarLetra(letra) {
