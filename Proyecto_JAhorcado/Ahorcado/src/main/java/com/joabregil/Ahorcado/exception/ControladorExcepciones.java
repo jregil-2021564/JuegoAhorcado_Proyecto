@@ -6,6 +6,7 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -57,6 +58,17 @@ public class ControladorExcepciones {
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Bad Request");
         body.put("message", "Falta un parámetro en la URL. Por favor, verifique la URL. Ejemplo: /api/usuarios/{id}");
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    // Maneja la excepción cuando el tipo de dato de un parámetro de la URL es incorrecto.
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> manejarErrorTipoParametro(MethodArgumentTypeMismatchException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", new java.util.Date());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
+        body.put("message", "El tipo de dato del parámetro '" + ex.getName() + "' es incorrecto. Se esperaba un número.");
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }

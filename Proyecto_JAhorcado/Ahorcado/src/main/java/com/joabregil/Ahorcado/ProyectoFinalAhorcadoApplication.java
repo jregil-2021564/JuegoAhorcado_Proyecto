@@ -13,82 +13,63 @@ import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.io.InputStream;
 import java.util.Date;
+import java.io.*;
 
 @SpringBootApplication
 public class ProyectoFinalAhorcadoApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         try {
-            // Intenta iniciar la aplicación principal de Spring Boot
             SpringApplication.run(ProyectoFinalAhorcadoApplication.class, args);
-        } catch (Exception excepcionInicio) {
-            Throwable causaRaiz = excepcionInicio;
-            boolean puertoOcupado = false;
-
-            // Revisa la cadena de excepciones en busca de un BindException
-            while (causaRaiz != null) {
-                if (causaRaiz instanceof BindException) {
-                    puertoOcupado = true;
-                    break;
-                }
-                causaRaiz = causaRaiz.getCause();
-            }
-
-            if (puertoOcupado) {
-                int puertoPrincipal = obtenerPuertoDePropiedades();
-                int puertoReserva = puertoPrincipal + 1;
-                System.err.println("¡ERROR CRÍTICO! El puerto " + puertoPrincipal + " ya está en uso. Levantando un servidor de reserva en el puerto " + puertoReserva);
-
-                try {
-                    iniciarServidorReserva(puertoReserva, puertoPrincipal);
-                } catch (IOException excepcionIO) {
-                    excepcionIO.printStackTrace();
-                }
-            } else {
-                excepcionInicio.printStackTrace();
-            }
-        }
-    }
-
-    private static int obtenerPuertoDePropiedades() {
-        Properties propiedades = new Properties();
-        try (InputStream flujoEntrada = ProyectoFinalAhorcadoApplication.class
-                .getClassLoader().getResourceAsStream("application.properties")) {
-            if (flujoEntrada != null) {
-                propiedades.load(flujoEntrada);
-                return Integer.parseInt(propiedades.getProperty("server.port", "8080"));
-            }
         } catch (Exception e) {
-            e.printStackTrace();
+            if (esPuertoOcupado(e)) {
+                int puertoPrincipal = 8080; // Puerto por defecto
+                int puertoReserva = puertoPrincipal + 1;
+                System.out.println("Puerto " + puertoPrincipal + " no disponible. Iniciando servidor alterno en puerto " + puertoReserva );
+                iniciarServidorAlterno(puertoReserva, puertoPrincipal);
+            } else {
+                e.printStackTrace();
+            }
         }
-        return 8080;
     }
-    private static void iniciarServidorReserva(int puertoReserva, int puertoOriginal) throws IOException {
-        HttpServer servidorAdvertencia = HttpServer.create(new InetSocketAddress(puertoReserva), 0);
-        String jsonError = "{\"error\": \"El puerto " + puertoOriginal + " está ocupado. La API no pudo iniciar. Por favor, cambia el puerto.\", \"timestamp\": \"" + new Date() + "\"}";
-        byte[] contenidoRespuesta = jsonError.getBytes("UTF-8");
 
-        servidorAdvertencia.createContext("/api/usuarios", exchange -> {
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-            exchange.sendResponseHeaders(503, contenidoRespuesta.length); // 503 Servicio No Disponible
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(contenidoRespuesta);
-            }
-        });
-        servidorAdvertencia.createContext("/api/palabras", exchange -> {
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-            exchange.sendResponseHeaders(503, contenidoRespuesta.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(contenidoRespuesta);
-            }
-        });
-        servidorAdvertencia.start();
+    private static boolean esPuertoOcupado(Exception e) {
+        Throwable causa = e;
+        while (causa != null) {
+            if (causa instanceof BindException) return true;
+            causa = causa.getCause();
+        }
+        return false;
+    }
 
-        System.out.println("Se ha activado un servidor de advertencia. Ve el mensaje en http://localhost:" + puertoReserva + "/api/usuarios");
+    private static void iniciarServidorAlterno(int puertoReserva, int puertoOriginal) {
+        try {
+            HttpServer servidor = HttpServer.create(new InetSocketAddress(puertoReserva), 0);
+            String mensajeError = "{\"aviso\": \"Servicio no disponible - Puerto " + puertoOriginal + " en uso, Por Favor Cambia de Puerto\", \"fecha\": \"" + new Date() + "\"}";
+            byte[] respuesta = mensajeError.getBytes("UTF-8");
+
+            // Configurar rutas principales
+            String[] rutas = {"/api/usuarios", "/api/palabras"};
+            for (String ruta : rutas) {
+                servidor.createContext(ruta, exchange -> {
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(503, respuesta.length);
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(respuesta);
+                    os.close();
+                });
+            }
+
+            servidor.start();
+            System.out.println("Servidor de aviso activo: http://localhost:" + puertoReserva + "/api/usuarios");
+
+        } catch (IOException ex) {
+            System.out.println("Error al iniciar servidor alterno: " + ex.getMessage());
+        }
     }
 
     @Override
     public void run(String... args) {
-        System.out.println("La API está funcionando Puedes Usar el Programa. ¡Bienvenido!");
+        System.out.println("Aplicación lista para usar");
     }
 }
