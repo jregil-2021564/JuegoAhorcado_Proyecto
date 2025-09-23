@@ -252,7 +252,7 @@
                         <div id="pistas" class="pistas"></div>
                         <button id="btn-pista" class="btn btn-pista">
                             <i class="fas fa-question-circle"></i> Usar Pista 
-                            <span id="contador-pistas">(1 restante)</span>
+                            <span id="contador-pistas">(3 restantes)</span>
                         </button>
                     </div>
                     
@@ -309,9 +309,9 @@
         </div>
     </div>
 
-    <audio id="click-sound" src="" preload="auto"></audio>
-    <audio id="win-sound" src="" preload="auto"></audio>
-    <audio id="lose-sound" src="" preload="auto"></audio>
+    <audio id="click-sound" src="Image/ClickMinecraft.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="Image/victoriafinalfantasy.mp3" preload="auto"></audio>
+    <audio id="lose-sound" src="Image/GameOver.mp3" preload="auto"></audio>
     
     <script src="js/myscript.js"></script>
 

@@ -99,7 +99,7 @@ document.getElementById('btn-instructions').addEventListener('click', mostrarIns
 document.getElementById('btn-salir').addEventListener('click', () => {
     playSound(clickSound);
     if (confirm('¿Estás seguro de que quieres salir?')) {
-        window.close();
+        window.location.replace('index.jsp');
     }
 });
 
@@ -351,7 +351,7 @@ function iniciarNuevoJuego(nuevaPalabra, nuevaPista) {
     if (palabraEncontrada) {
         imagenPalabra = palabraEncontrada.imagen;
     } else {
-        imagenPalabra = "Image/imagen_default.png"; 
+        imagenPalabra = "Image/Imagen_Victoria.png"; 
     }
 
     palabraAdivinada = Array(palabraSecreta.length).fill('_');
@@ -364,7 +364,7 @@ function iniciarNuevoJuego(nuevaPalabra, nuevaPista) {
     inicializarTeclado();
     
     pistasElement.textContent = ""; 
-    contadorPistas.textContent = '(1 restante)';
+    contadorPistas.textContent = '(3 restante)';
 
     tiempoTranscurrido = 0;
     juegoActivo = true;
