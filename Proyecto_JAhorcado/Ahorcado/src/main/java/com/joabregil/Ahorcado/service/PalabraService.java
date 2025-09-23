@@ -8,4 +8,5 @@ public interface PalabraService {
     Palabra savePalabra(Palabra palabra);
     Palabra updatePalabra(Integer id, Palabra palabra);
     String deletePalabra(Integer id);
+    boolean existsById(Integer id);
 }

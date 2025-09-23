@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PalabraRepository extends JpaRepository<Palabra, Integer> {
-
+    Palabra findByPalabra(String palabra);
 }

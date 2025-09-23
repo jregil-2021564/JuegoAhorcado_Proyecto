@@ -29,23 +29,61 @@ public class UsuarioController {
     @PostMapping
     public String createUsuario(@RequestBody Usuario usuario) {
         Usuario result = usuarioService.saveUsuario(usuario);
-        if ("EXISTE".equals(result.getUsername())) {
-            return "Este nombre de usuario ya está registrado";
+
+        // Validaciones manuales con if
+        if ("ERROR_USERNAME_VACIO".equals(result.getUsername())) {
+            return "El nombre de usuario no puede estar vacío.";
         }
+        if ("ERROR_PASSWORD_VACIO".equals(result.getPassword())) {
+            return "La contraseña no puede estar vacía.";
+        }
+        if ("ERROR_USERNAME_LARGO".equals(result.getUsername())) {
+            return "El nombre de usuario no puede exceder los 100 caracteres.";
+        }
+        if ("ERROR_PASSWORD_LARGA".equals(result.getPassword())) {
+            return "La contraseña no puede exceder los 100 caracteres.";
+        }
+        if ("EXISTE".equals(result.getUsername())) {
+            return "Este nombre de usuario ya está registrado.";
+        }
+
         return "Usuario agregado exitosamente";
     }
 
     @PutMapping("/{id}")
     public String updateUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
         Usuario result = usuarioService.updateUsuario(id, usuario);
+
+        // Validaciones manuales con if
         if (result == null) {
-            return "No se encontró el usuario con esa ID";
+            return "No se encontró el usuario con esa ID.";
         }
+        if ("ERROR_USERNAME_REPETIDO".equals(result.getUsername())) {
+            return "No se puede actualizar, el nuevo nombre de usuario ya existe.";
+        }
+        if ("ERROR_USERNAME_LARGO".equals(result.getUsername())) {
+            return "El nombre de usuario no puede exceder los 100 caracteres.";
+        }
+        if ("ERROR_PASSWORD_LARGA".equals(result.getPassword())) {
+            return "La contraseña no puede exceder los 100 caracteres.";
+        }
+        if ("ERROR_USERNAME_VACIO".equals(result.getUsername())) {
+            return "El nombre de usuario no puede estar vacío.";
+        }
+        if ("ERROR_PASSWORD_VACIO".equals(result.getPassword())) {
+            return "La contraseña no puede estar vacía.";
+        }
+
         return "Actualización exitosa";
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUsuario(@PathVariable Integer id) {
+    public String deleteUsuario(@PathVariable Integer id) {
+        Usuario usuario = usuarioService.getUsuarioById(id);
+        if (usuario == null) {
+            return "No se encontró el usuario con ese ID para ser eliminado.";
+        }
         usuarioService.deleteUsuario(id);
+        return "Usuario eliminado correctamente.";
     }
 }

@@ -27,17 +27,24 @@ public class PalabraServiceImplements implements PalabraService {
 
     @Override
     public Palabra savePalabra(Palabra palabra) {
-        // Validación: no permitir palabras vacías o muy cortas
-        if (palabra.getPalabra() == null || palabra.getPalabra().trim().length() < 3) {
+        // Validation: word cannot be null, too short, or contain numbers
+        if (palabra.getPalabra() == null || palabra.getPalabra().trim().length() < 3 || palabra.getPalabra().matches(".*\\d.*")) {
             Palabra resultado = new Palabra();
             resultado.setPalabra("ERROR_PALABRA_INVALIDA");
             return resultado;
         }
 
-        // Validación: pista no puede estar vacía
+        // Validation: hint cannot be empty
         if (palabra.getPista() == null || palabra.getPista().trim().isEmpty()) {
             Palabra resultado = new Palabra();
             resultado.setPalabra("ERROR_PISTA_VACIA");
+            return resultado;
+        }
+
+        // Validation: check for duplicates
+        if (palabraRepository.findByPalabra(palabra.getPalabra()) != null) {
+            Palabra resultado = new Palabra();
+            resultado.setPalabra("ERROR_DUPLICADO");
             return resultado;
         }
 
@@ -48,15 +55,22 @@ public class PalabraServiceImplements implements PalabraService {
     public Palabra updatePalabra(Integer id, Palabra palabra) {
         Palabra existingPalabra = palabraRepository.findById(id).orElse(null);
         if (existingPalabra != null) {
-            // Validar palabra
-            if (palabra.getPalabra() == null || palabra.getPalabra().trim().length() < 3) {
+            // Validation: word cannot be null, too short, or contain numbers
+            if (palabra.getPalabra() == null || palabra.getPalabra().trim().length() < 3 || palabra.getPalabra().matches(".*\\d.*")) {
                 palabra.setPalabra("ERROR_PALABRA_INVALIDA");
                 return palabra;
             }
 
-            // Validar pista
+            // Validation: hint cannot be empty
             if (palabra.getPista() == null || palabra.getPista().trim().isEmpty()) {
                 palabra.setPalabra("ERROR_PISTA_VACIA");
+                return palabra;
+            }
+
+            // Validation: check for duplicates when updating
+            Palabra duplicatePalabra = palabraRepository.findByPalabra(palabra.getPalabra());
+            if (duplicatePalabra != null && !duplicatePalabra.getCodigoPalabra().equals(id)) {
+                palabra.setPalabra("ERROR_DUPLICADO");
                 return palabra;
             }
 
@@ -76,5 +90,10 @@ public class PalabraServiceImplements implements PalabraService {
         } else {
             return "No se encontró la palabra con ID: " + id;
         }
+    }
+
+    @Override
+    public boolean existsById(Integer id) {
+        return palabraRepository.existsById(id);
     }
 }
