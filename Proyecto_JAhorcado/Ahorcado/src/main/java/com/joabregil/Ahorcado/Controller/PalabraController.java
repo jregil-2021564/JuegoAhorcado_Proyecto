@@ -32,7 +32,6 @@ public class PalabraController {
 
     @PostMapping
     public String createPalabra(@RequestBody Palabra palabra) {
-        // Validate against missing or malformed fields
         if (palabra.getPalabra() == null) {
             return "Error: Falta la columna 'palabra'.";
         }
@@ -57,7 +56,6 @@ public class PalabraController {
 
     @PutMapping("/{id}")
     public String updatePalabra(@PathVariable Integer id, @RequestBody Palabra palabra) {
-        // Validate against missing or malformed fields
         if (palabra.getPalabra() == null) {
             return "Error: Falta la columna 'palabra'.";
         }
@@ -93,7 +91,6 @@ public class PalabraController {
         return "Palabra eliminada correctamente.";
     }
 
-    // This handles missing @PathVariable which would result in a 404
     @ExceptionHandler(org.springframework.web.bind.MissingPathVariableException.class)
     public ResponseEntity<Map<String, Object>> handleMissingPathVariable() {
         Map<String, Object> body = new HashMap<>();

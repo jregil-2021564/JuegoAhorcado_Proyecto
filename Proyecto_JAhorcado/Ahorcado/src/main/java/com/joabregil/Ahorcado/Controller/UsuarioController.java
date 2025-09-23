@@ -30,7 +30,6 @@ public class UsuarioController {
     public String createUsuario(@RequestBody Usuario usuario) {
         Usuario result = usuarioService.saveUsuario(usuario);
 
-        // Validaciones manuales con if
         if ("ERROR_USERNAME_VACIO".equals(result.getUsername())) {
             return "El nombre de usuario no puede estar vacío.";
         }
@@ -54,7 +53,6 @@ public class UsuarioController {
     public String updateUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
         Usuario result = usuarioService.updateUsuario(id, usuario);
 
-        // Validaciones manuales con if
         if (result == null) {
             return "No se encontró el usuario con esa ID.";
         }
